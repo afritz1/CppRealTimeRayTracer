@@ -18,6 +18,8 @@
 // - uv1: @p3 (top left)
 // - uv2: @p2 (bottom right)
 
+class BoundingBox;
+
 class Rect
 {
 private:
@@ -43,6 +45,8 @@ public:
 	double getWidth() const;
 	double getHeight() const;
 	int getMaterialIndex() const;
+
+	BoundingBox getBoundingBox() const;
 
 	void setPoint(const Double3 &p);
 	void setNormals(const Double3 &normal, const Double3 &tangent);

@@ -1,4 +1,5 @@
 #include "Triangle.h"
+#include "../Acceleration/BoundingBox.h"
 
 const Double3 &Triangle::getP1() const
 {
@@ -44,6 +45,16 @@ const Double2 &Triangle::getUV3() const
 int Triangle::getMaterialIndex() const
 {
 	return this->materialIndex;
+}
+
+BoundingBox Triangle::getBoundingBox() const
+{
+	const Double3 min = this->p1.componentMin(this->p2).componentMin(this->p3);
+	const Double3 max = this->p1.componentMax(this->p2).componentMax(this->p3);
+
+	BoundingBox bbox;
+	bbox.init(min, max);
+	return bbox;
 }
 
 void Triangle::setP1(const Double3 &p)

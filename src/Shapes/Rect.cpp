@@ -1,4 +1,5 @@
 #include "Rect.h"
+#include "../Acceleration/BoundingBox.h"
 
 const Double3 &Rect::getPoint() const
 {
@@ -83,6 +84,18 @@ double Rect::getHeight() const
 int Rect::getMaterialIndex() const
 {
 	return this->materialIndex;
+}
+
+BoundingBox Rect::getBoundingBox() const
+{
+	const Double3 min = this->p1.componentMin(this->p2)
+		.componentMin(this->p3).componentMin(this->p4);
+	const Double3 max = this->p1.componentMax(this->p2)
+		.componentMax(this->p3).componentMax(this->p4);
+
+	BoundingBox bbox;
+	bbox.init(min, max);
+	return bbox;
 }
 
 void Rect::setPoint(const Double3 &p)

@@ -11,6 +11,8 @@
 // - p2: (1, 0)
 // - p3: (0, 1)
 
+class BoundingBox;
+
 class Triangle
 {
 private:
@@ -28,6 +30,8 @@ public:
 	const Double2 &getUV2() const;
 	const Double2 &getUV3() const;
 	int getMaterialIndex() const;
+
+	BoundingBox getBoundingBox() const;
 
 	void setP1(const Double3 &p);
 	void setP2(const Double3 &p);
