@@ -1,0 +1,126 @@
+CMAKE_MINIMUM_REQUIRED(VERSION 3.1.0)
+
+IF (COMMAND cmake_policy)
+	CMAKE_POLICY(SET CMP0003 NEW)
+ENDIF (COMMAND cmake_policy)
+
+PROJECT(CppRealTimeRayTracer CXX)
+
+SET(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/")
+
+# Set global C++ standard for all targets.
+SET(CMAKE_CXX_STANDARD 14)
+SET(CMAKE_CXX_STANDARD_REQUIRED ON)
+SET(CMAKE_CXX_EXTENSIONS ON)
+
+FIND_PACKAGE(SDL2 REQUIRED)
+
+SET(EXTERNAL_LIBS ${SDL2_LIBRARY})
+INCLUDE_DIRECTORIES("${CMAKE_SOURCE_DIR}" ${SDL2_INCLUDE_DIR})
+
+# Configure for GNU Compiler. Use "MATCHES" instead of "STREQUAL" to cover
+# both Clang and AppleClang.
+IF (CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+	# To use std::thread and friends, we must pass -lpthread and -pthread to the compiler and Linker for GCC.
+	IF (NOT WIN32 AND NOT APPLE)
+		SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pthread")
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
+		SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -lpthread -pthread")
+	ENDIF ()
+ENDIF ()
+
+# We want RelWithDebInfo to actually include debug stuff (define _DEBUG
+# instead of NDEBUG).
+FOREACH(flag_var CMAKE_C_FLAGS_RELWITHDEBINFO CMAKE_CXX_FLAGS_RELWITHDEBINFO)
+	IF (${flag_var} MATCHES "-DNDEBUG")
+		STRING(REGEX REPLACE "-DNDEBUG" "-D_DEBUG" ${flag_var} "${${flag_var}}")
+	ENDIF ()
+ENDFOREACH ()
+
+IF (MSVC)
+	# Add multi-processor compilation.
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
+ENDIF ()
+
+# Source code.
+SET(SRC_ROOT ${CppRealTimeRayTracer_SOURCE_DIR}/src)
+
+FILE(GLOB_RECURSE RT_ACCELERATION
+	${SRC_ROOT}/Acceleration/*.h
+	${SRC_ROOT}/Acceleration/*.cpp)
+
+FILE(GLOB_RECURSE RT_CAMERAS
+	${SRC_ROOT}/Cameras/*.h
+	${SRC_ROOT}/Cameras/*.cpp)
+
+FILE(GLOB_RECURSE RT_GAME
+	${SRC_ROOT}/Game/*.h
+	${SRC_ROOT}/Game/*.cpp)
+
+FILE(GLOB_RECURSE RT_LIGHTS
+	${SRC_ROOT}/Lights/*.h
+	${SRC_ROOT}/Lights/*.cpp)
+
+FILE(GLOB_RECURSE RT_MATERIALS
+	${SRC_ROOT}/Materials/*.h
+	${SRC_ROOT}/Materials/*.cpp)
+
+FILE(GLOB_RECURSE RT_MATH
+	${SRC_ROOT}/Math/*.h
+	${SRC_ROOT}/Math/*.cpp)
+
+FILE(GLOB_RECURSE RT_RENDERING
+	${SRC_ROOT}/Rendering/*.h
+	${SRC_ROOT}/Rendering/*.cpp)
+
+FILE(GLOB_RECURSE RT_SHAPES
+	${SRC_ROOT}/Shapes/*.h
+	${SRC_ROOT}/Shapes/*.cpp)
+
+FILE(GLOB_RECURSE RT_UTILITIES
+	${SRC_ROOT}/Utilities/*.h
+	${SRC_ROOT}/Utilities/*.cpp)
+
+FILE(GLOB_RECURSE RT_WORLD
+	${SRC_ROOT}/World/*.h
+	${SRC_ROOT}/World/*.cpp)
+
+SET(RT_MAIN ${SRC_ROOT}/Main.cpp)
+
+SET(RT_SOURCES
+	${RT_ACCELERATION}
+	${RT_CAMERAS}
+	${RT_GAME}
+	${RT_LIGHTS}
+	${RT_MAIN}
+	${RT_MATERIALS}
+	${RT_MATH}
+	${RT_RENDERING}
+	${RT_SHAPES}
+	${RT_UTILITIES}
+	${RT_WORLD})
+
+SET(RT_DATA_FOLDER ${CMAKE_SOURCE_DIR}/data)
+
+IF(WIN32)
+	ADD_DEFINITIONS("-D_SCL_SECURE_NO_WARNINGS=1")
+	ADD_EXECUTABLE(CppRealTimeRayTracer ${RT_SOURCES})
+ENDIF()
+
+FILE(COPY ${RT_DATA_FOLDER} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+
+TARGET_LINK_LIBRARIES(CppRealTimeRayTracer ${EXTERNAL_LIBS})
+SET_TARGET_PROPERTIES(CppRealTimeRayTracer PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CppRealTimeRayTracer_BINARY_DIR})
+
+# Visual Studio filters.
+SOURCE_GROUP("Acceleration" FILES ${RT_ACCELERATION})
+SOURCE_GROUP("Cameras" FILES ${RT_CAMERAS})
+SOURCE_GROUP("Game" FILES ${RT_GAME})
+SOURCE_GROUP("Lights" FILES ${RT_LIGHTS})
+SOURCE_GROUP("Main" FILES ${RT_MAIN})
+SOURCE_GROUP("Materials" FILES ${RT_MATERIALS})
+SOURCE_GROUP("Math" FILES ${RT_MATH})
+SOURCE_GROUP("Rendering" FILES ${RT_RENDERING})
+SOURCE_GROUP("Shapes" FILES ${RT_SHAPES})
+SOURCE_GROUP("Utilities" FILES ${RT_UTILITIES})
+SOURCE_GROUP("World" FILES ${RT_WORLD})
