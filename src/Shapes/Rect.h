@@ -18,7 +18,7 @@
 // - uv1: @p3 (top left)
 // - uv2: @p2 (bottom right)
 
-class alignas(sizeof(Double3)) Rect
+class Rect
 {
 private:
 	Double3 point, p1, p2, p3, p4;

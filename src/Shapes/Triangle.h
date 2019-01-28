@@ -11,7 +11,7 @@
 // - p2: (1, 0)
 // - p3: (0, 1)
 
-class alignas(sizeof(Double3)) Triangle
+class Triangle
 {
 private:
 	Double3 p1, p2, p3;

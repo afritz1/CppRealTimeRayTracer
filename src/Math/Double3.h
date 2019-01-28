@@ -146,6 +146,16 @@ public:
 	{
 		return this->clamped(0.0, 1.0);
 	}
+
+	Double3 componentMin(const Double3 &v) const
+	{
+		return Double3(_mm256_min_pd(this->m, v.m));
+	}
+
+	Double3 componentMax(const Double3 &v) const
+	{
+		return Double3(_mm256_max_pd(this->m, v.m));
+	}
 };
 
 #endif
