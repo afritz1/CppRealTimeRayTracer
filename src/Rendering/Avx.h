@@ -15,6 +15,12 @@ struct Avx
 
 	Avx(__m256d m)
 		: m(m) { }
+
+	Avx &operator=(__m256d m)
+	{
+		this->m = m;
+		return *this;
+	}
 };
 
 // Abbreviations for AVX double vector intrinsics. It might be easy in theory to have
