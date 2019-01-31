@@ -1,17 +1,24 @@
 #ifndef RT_RAY_PACKET_H
 #define RT_RAY_PACKET_H
 
-#include <array>
+#include "AvxDouble3.h"
 
-// Each packet contains NxN rays; intended for calculating rays in parallel.
+// Each packet contains 4 rays; intended for calculating rays in parallel.
 
-struct alignas(32) RayPacket
+struct alignas(sizeof(__m256d)) RayPacket
 {
-	static constexpr int N = 2;
-	static constexpr int COUNT = N * N;
+	__m256d pointsX, pointsY, pointsZ;
+	__m256d dirsX, dirsY, dirsZ;
 
-	std::array<double, COUNT> pointsX, pointsY, pointsZ;
-	std::array<double, COUNT> directionsX, directionsY, directionsZ;
+	void pointsAt(__m256d ts, AvxDouble3 &dst) const
+	{
+		const __m256d dXs = _mm256_mul_pd(dirsX, ts);
+		const __m256d dYs = _mm256_mul_pd(dirsY, ts);
+		const __m256d dZs = _mm256_mul_pd(dirsZ, ts);
+		dst.xs = _mm256_add_pd(pointsX, dXs);
+		dst.ys = _mm256_add_pd(pointsY, dYs);
+		dst.zs = _mm256_add_pd(pointsZ, dZs);
+	}
 };
 
 #endif
