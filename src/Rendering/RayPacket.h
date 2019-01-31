@@ -7,17 +7,18 @@
 
 struct alignas(sizeof(__m256d)) RayPacket
 {
-	__m256d pointsX, pointsY, pointsZ;
-	__m256d dirsX, dirsY, dirsZ;
+	AvxDouble3 points;
+	AvxDouble3 dirs;
 
-	void pointsAt(__m256d ts, AvxDouble3 &dst) const
+	AvxDouble3 pointsAt(__m256d ts) const
 	{
-		const __m256d dXs = _mm256_mul_pd(dirsX, ts);
-		const __m256d dYs = _mm256_mul_pd(dirsY, ts);
-		const __m256d dZs = _mm256_mul_pd(dirsZ, ts);
-		dst.xs = _mm256_add_pd(pointsX, dXs);
-		dst.ys = _mm256_add_pd(pointsY, dYs);
-		dst.zs = _mm256_add_pd(pointsZ, dZs);
+		return this->points + (this->dirs * ts);
+	}
+
+	void init(const AvxDouble3 &points, const AvxDouble3 &dirs)
+	{
+		this->points = points;
+		this->dirs = dirs;
 	}
 };
 
