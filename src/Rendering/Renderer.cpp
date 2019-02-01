@@ -1,8 +1,10 @@
+#include <algorithm>
 #include <cassert>
 
 #include "SDL.h"
 
 #include "Renderer.h"
+#include "Renderer3D.h"
 #include "Surface.h"
 
 const char *Renderer::DEFAULT_RENDER_SCALE_QUALITY = "nearest";
@@ -143,7 +145,7 @@ void Renderer::init(int width, int height, bool fullscreen)
 
 	// Use window dimensions, just in case it's fullscreen and the given width and
 	// height are ignored.
-	Int2 windowDimensions = this->getWindowDimensions();
+	const Int2 windowDimensions = this->getWindowDimensions();
 
 	// Initialize native frame buffer.
 	this->nativeTexture = this->createTexture(Renderer::DEFAULT_PIXELFORMAT,
@@ -159,7 +161,37 @@ void Renderer::init(int width, int height, bool fullscreen)
 	this->gameWorldTexture = nullptr;
 }
 
-void Renderer::resize(int width, int height, double resolutionScale)
+void Renderer::init3D(double resolutionScale, Renderer3D &renderer3D)
+{
+	const Int2 windowDims = this->getWindowDimensions();
+	const int screenWidth = windowDims.x;
+	const int screenHeight = windowDims.y;
+
+	// Make sure render dimensions are at least 1x1.
+	const int renderWidth = std::max(static_cast<int>(screenWidth * resolutionScale), 1);
+	const int renderHeight = std::max(static_cast<int>(screenHeight * resolutionScale), 1);
+
+	// Remove any previous game world frame buffer.
+	if (renderer3D.isInited())
+	{
+		SDL_DestroyTexture(this->gameWorldTexture);
+	}
+
+	// Initialize a new game world frame buffer.
+	this->gameWorldTexture = this->createTexture(Renderer::DEFAULT_PIXELFORMAT,
+		SDL_TEXTUREACCESS_STREAMING, renderWidth, renderHeight);
+
+	if (this->gameWorldTexture == nullptr)
+	{
+		printf("Couldn't create game world texture, %s.\n", SDL_GetError());
+		return;
+	}
+
+	// Initialize 3D rendering.
+	renderer3D.init(renderWidth, renderHeight);
+}
+
+void Renderer::resize(int width, int height, double resolutionScale, Renderer3D &renderer3D)
 {
 	// The window's dimensions are resized automatically. The renderer's are not.
 	const auto *nativeSurface = SDL_GetWindowSurface(this->window);
@@ -180,26 +212,26 @@ void Renderer::resize(int width, int height, double resolutionScale)
 	}
 
 	// Rebuild the 3D renderer if initialized.
-	/*if (this->softwareRenderer.isInited())
+	if (renderer3D.isInited())
 	{
-		// Height of the game world view in pixels. Determined by whether the game 
-		// interface is visible or not.
-		const int viewHeight = this->getViewHeight();
-
 		// Make sure render dimensions are at least 1x1.
 		const int renderWidth = std::max(static_cast<int>(width * resolutionScale), 1);
-		const int renderHeight = std::max(static_cast<int>(viewHeight * resolutionScale), 1);
+		const int renderHeight = std::max(static_cast<int>(height * resolutionScale), 1);
 
 		// Reinitialize the game world frame buffer.
 		SDL_DestroyTexture(this->gameWorldTexture);
 		this->gameWorldTexture = this->createTexture(Renderer::DEFAULT_PIXELFORMAT,
 			SDL_TEXTUREACCESS_STREAMING, renderWidth, renderHeight);
-		DebugAssert(this->gameWorldTexture != nullptr,
-			"Couldn't recreate game world texture, " + std::string(SDL_GetError()));
+
+		if (this->gameWorldTexture == nullptr)
+		{
+			printf("Couldn't recreate game world texture, %s.\n", SDL_GetError());
+			return;
+		}
 
 		// Resize 3D renderer.
-		this->softwareRenderer.resize(renderWidth, renderHeight);
-	}*/
+		renderer3D.resize(renderWidth, renderHeight);
+	}
 }
 
 void Renderer::setFullscreen(bool fullscreen)
@@ -233,6 +265,49 @@ void Renderer::clear()
 	SDL_SetRenderTarget(this->renderer, this->nativeTexture);
 	SDL_SetRenderDrawColor(this->renderer, 0, 0, 0, 255);
 	SDL_RenderClear(this->renderer);
+}
+
+void Renderer::draw(SDL_Texture *texture, int x, int y, int w, int h)
+{
+	SDL_SetRenderTarget(this->renderer, this->nativeTexture);
+
+	SDL_Rect rect;
+	rect.x = x;
+	rect.y = y;
+	rect.w = w;
+	rect.h = h;
+
+	SDL_RenderCopy(this->renderer, texture, nullptr, &rect);
+}
+
+void Renderer::render(Renderer3D &renderer3D)
+{
+	assert(renderer3D.isInited());
+
+	// Lock the game world texture and give the pixel pointer to the software renderer.
+	// Supposedly this is faster than SDL_UpdateTexture().
+	uint32_t *gameWorldPixels;
+	int gameWorldPitch;
+	int status = SDL_LockTexture(this->gameWorldTexture, nullptr,
+		reinterpret_cast<void**>(&gameWorldPixels), &gameWorldPitch);
+
+	if (status != 0)
+	{
+		printf("Couldn't lock game world texture, %s.\n", SDL_GetError());
+		return;
+	}
+
+	// Render the game world to the game world frame buffer.
+	renderer3D.render(gameWorldPixels);
+
+	// Update the game world texture with the new ARGB8888 pixels.
+	SDL_UnlockTexture(this->gameWorldTexture);
+
+	// Now copy to the native frame buffer (stretching if needed).
+	const Int2 windowDims = this->getWindowDimensions();
+	const int screenWidth = windowDims.x;
+	const int screenHeight = windowDims.y;
+	this->draw(this->gameWorldTexture, 0, 0, screenWidth, screenHeight);
 }
 
 void Renderer::present()

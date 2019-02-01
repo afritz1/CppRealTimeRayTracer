@@ -3,6 +3,7 @@
 
 #include "InputManager.h"
 #include "../Rendering/Renderer.h"
+#include "../Rendering/Renderer3D.h"
 
 class Surface;
 
@@ -11,6 +12,7 @@ class Game
 private:
 	InputManager inputManager;
 	Renderer renderer;
+	Renderer3D renderer3D;
 	double resolutionScale;
 
 	void handleInput(bool &running);

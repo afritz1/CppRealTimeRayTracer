@@ -6,6 +6,7 @@
 
 #include "../Math/Int2.h"
 
+class Renderer3D;
 class Surface;
 
 struct SDL_Rect;
@@ -48,8 +49,9 @@ public:
 	SDL_Texture *createTextureFromSurface(SDL_Surface *surface);
 
 	void init(int width, int height, bool fullscreen);
+	void init3D(double resolutionScale, Renderer3D &renderer3D);
 
-	void resize(int width, int height, double resolutionScale);
+	void resize(int width, int height, double resolutionScale, Renderer3D &renderer3D);
 
 	// Sets whether the program is windowed or fullscreen.
 	void setFullscreen(bool fullscreen);
@@ -65,6 +67,12 @@ public:
 
 	// Clears the native frame buffer.
 	void clear();
+
+	// Draws texture to the frame buffer.
+	void draw(SDL_Texture *texture, int x, int y, int w, int h);
+
+	// Renders the game world to the internal frame buffer.
+	void render(Renderer3D &renderer3D);
 
 	// Refreshes the displayed frame buffer.
 	void present();

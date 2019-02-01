@@ -8,9 +8,9 @@ Game::Game()
 	const int width = 1280;
 	const int height = 720;
 	const bool fullscreen = false;
-	this->renderer.init(width, height, fullscreen);
-
 	this->resolutionScale = 0.50;
+	this->renderer.init(width, height, fullscreen);
+	this->renderer.init3D(this->resolutionScale, this->renderer3D);
 }
 
 void Game::handleInput(bool &running)
@@ -45,7 +45,7 @@ void Game::handleInput(bool &running)
 
 void Game::resizeWindow(int width, int height)
 {
-	this->renderer.resize(width, height, this->resolutionScale);
+	this->renderer.resize(width, height, this->resolutionScale, this->renderer3D);
 }
 
 void Game::saveScreenshot(const Surface &surface)
@@ -61,6 +61,7 @@ void Game::tick(double dt)
 void Game::render(double dt)
 {
 	this->renderer.clear();
+	this->renderer.render(this->renderer3D);
 	this->renderer.present();
 }
 
