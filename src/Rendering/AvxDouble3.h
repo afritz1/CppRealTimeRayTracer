@@ -91,6 +91,98 @@ struct alignas(sizeof(__m256d)) AvxDouble3
 			my_cmp_p(this->ys.m, v.ys.m, imm8),
 			my_cmp_p(this->zs.m, v.zs.m, imm8));
 	}*/
+
+	Avx lengthSquared() const
+	{
+		const __m256d xsSqr = my_mul_p(this->xs.m, this->xs.m);
+		const __m256d ysSqr = my_mul_p(this->ys.m, this->ys.m);
+		const __m256d zsSqr = my_mul_p(this->zs.m, this->zs.m);
+		return Avx(my_add_p(xsSqr, my_add_p(ysSqr, zsSqr)));
+	}
+
+	Avx length() const
+	{
+		return my_sqrt_p(this->lengthSquared().m);
+	}
+
+	AvxDouble3 normalized() const
+	{
+		const Avx lenRecip = my_div_p(my_set1_p(1.0), this->length().m);
+		return AvxDouble3(
+			my_mul_p(this->xs.m, lenRecip.m),
+			my_mul_p(this->ys.m, lenRecip.m),
+			my_mul_p(this->zs.m, lenRecip.m));
+	}
+
+	// @todo: do abs() in AVX instructions.
+	/*bool isNormalized() const
+	{
+		return std::abs(1.0 - this->lengthSquared()) < Constants::Epsilon;
+	}*/
+
+	Avx dot(const AvxDouble3 &v) const
+	{
+		const __m256d xsMult = my_mul_p(this->xs.m, v.xs.m);
+		const __m256d ysMult = my_mul_p(this->ys.m, v.ys.m);
+		const __m256d zsMult = my_mul_p(this->zs.m, v.zs.m);
+		return Avx(my_add_p(xsMult, my_add_p(ysMult, zsMult)));
+	}
+
+	AvxDouble3 cross(const AvxDouble3 &v) const
+	{
+		const __m256d x1 = my_mul_p(this->ys.m, v.zs.m);
+		const __m256d x2 = my_mul_p(v.ys.m, this->zs.m);
+		const __m256d y1 = my_mul_p(v.xs.m, this->zs.m);
+		const __m256d y2 = my_mul_p(this->xs.m, v.zs.m);
+		const __m256d z1 = my_mul_p(this->xs.m, v.ys.m);
+		const __m256d z2 = my_mul_p(v.xs.m, this->ys.m);
+		return AvxDouble3(my_sub_p(x1, x2), my_sub_p(y1, y2), my_sub_p(z1, z2));
+	}
+
+	AvxDouble3 lerp(const AvxDouble3 &end, Avx percent) const
+	{
+		const AvxDouble3 diff(
+			my_sub_p(end.xs.m, this->xs.m),
+			my_sub_p(end.ys.m, this->ys.m),
+			my_sub_p(end.zs.m, this->zs.m));
+		return AvxDouble3(
+			my_add_p(this->xs.m, my_mul_p(diff.xs.m, percent.m)),
+			my_add_p(this->ys.m, my_mul_p(diff.ys.m, percent.m)),
+			my_add_p(this->zs.m, my_mul_p(diff.zs.m, percent.m)));
+	}
+
+	AvxDouble3 clamped(Avx low, Avx high) const
+	{
+		const AvxDouble3 mins(
+			my_min_p(this->xs.m, high.m),
+			my_min_p(this->ys.m, high.m),
+			my_min_p(this->zs.m, high.m));
+		return AvxDouble3(
+			my_max_p(mins.xs.m, low.m),
+			my_max_p(mins.ys.m, low.m),
+			my_max_p(mins.zs.m, low.m));
+	}
+
+	AvxDouble3 clamped() const
+	{
+		return this->clamped(my_set1_p(0.0), my_set1_p(1.0));
+	}
+
+	AvxDouble3 componentMin(const AvxDouble3 &v) const
+	{
+		return AvxDouble3(
+			my_min_p(this->xs.m, v.xs.m),
+			my_min_p(this->ys.m, v.ys.m),
+			my_min_p(this->zs.m, v.zs.m));
+	}
+
+	AvxDouble3 componentMax(const AvxDouble3 &v) const
+	{
+		return AvxDouble3(
+			my_max_p(this->xs.m, v.xs.m),
+			my_max_p(this->ys.m, v.ys.m),
+			my_max_p(this->zs.m, v.zs.m));
+	}
 };
 
 #endif

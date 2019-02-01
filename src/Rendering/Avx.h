@@ -34,6 +34,9 @@ struct Avx
 #define my_sub_p(a, b) _mm256_sub_pd(a, b)
 #define my_mul_p(a, b) _mm256_mul_pd(a, b)
 #define my_div_p(a, b) _mm256_div_pd(a, b)
+#define my_min_p(a, b) _mm256_min_pd(a, b)
+#define my_max_p(a, b) _mm256_max_pd(a, b)
 #define my_cmp_p(a, b, imm8) _mm256_cmp_pd(a, b, imm8)
+#define my_sqrt_p(a) _mm256_sqrt_pd(a)
 
 #endif
