@@ -11,6 +11,7 @@ private:
 	void pitch(double radians);
 	void yaw(double radians);
 public:
+	Camera();
 	Camera(const Double3 &eye, const Double3 &direction);
 
 	const Double3 &getEye() const;

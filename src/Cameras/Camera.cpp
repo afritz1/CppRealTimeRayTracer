@@ -3,6 +3,9 @@
 #include "Camera.h"
 #include "../Math/Quaternion.h"
 
+Camera::Camera()
+	: eye(Double3::Zero), forward(Double3::Zero), right(Double3::Zero), up(Double3::Zero) { }
+
 Camera::Camera(const Double3 &eye, const Double3 &direction)
 	: eye(eye)
 {
