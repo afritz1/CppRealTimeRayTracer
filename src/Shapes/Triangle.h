@@ -12,6 +12,8 @@
 // - p3: (0, 1)
 
 class BoundingBox;
+class IntersectionData;
+class Ray;
 
 class Triangle
 {
@@ -43,6 +45,8 @@ public:
 
 	void init(const Double3 &p1, const Double3 &p2, const Double3 &p3,
 		const Double2 &uv1, const Double2 &uv2, const Double2 &uv3, int materialIndex);
+
+	bool intersect(const Ray &ray, IntersectionData &intersection);
 };
 
 #endif

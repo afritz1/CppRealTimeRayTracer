@@ -1,5 +1,7 @@
 #include "Rect.h"
 #include "../Acceleration/BoundingBox.h"
+#include "../Math/Ray.h"
+#include "../Rendering/IntersectionData.h"
 
 const Double3 &Rect::getPoint() const
 {
@@ -161,4 +163,10 @@ void Rect::updatePoints()
 	this->p3 = this->point - scaledTangent + scaledBinormal;
 	this->p4 = this->point + scaledTangent + scaledBinormal;
 	this->dirty = false;
+}
+
+bool Rect::intersect(const Ray &ray, IntersectionData &intersection)
+{
+	// @todo
+	return false;
 }

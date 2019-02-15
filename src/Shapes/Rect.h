@@ -19,6 +19,8 @@
 // - uv2: @p2 (bottom right)
 
 class BoundingBox;
+class IntersectionData;
+class Ray;
 
 class Rect
 {
@@ -58,6 +60,8 @@ public:
 
 	void init(const Double3 &point, const Double3 &normal, const Double3 &tangent, double width,
 		double height, const Double2 &uv1, const Double2 &uv2, int materialIndex);
+
+	bool intersect(const Ray &ray, IntersectionData &intersection);
 };
 
 #endif

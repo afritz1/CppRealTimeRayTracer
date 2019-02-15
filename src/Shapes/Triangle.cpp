@@ -1,5 +1,7 @@
 #include "Triangle.h"
 #include "../Acceleration/BoundingBox.h"
+#include "../Math/Ray.h"
+#include "../Rendering/IntersectionData.h"
 
 const Double3 &Triangle::getP1() const
 {
@@ -106,4 +108,10 @@ void Triangle::init(const Double3 &p1, const Double3 &p2, const Double3 &p3,
 	this->uv3 = uv3;
 	this->materialIndex = materialIndex;
 	this->dirty = true;
+}
+
+bool Triangle::intersect(const Ray &ray, IntersectionData &intersection)
+{
+	// @todo
+	return false;
 }
