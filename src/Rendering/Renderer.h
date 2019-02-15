@@ -6,8 +6,10 @@
 
 #include "../Math/Int2.h"
 
+class Camera;
 class Renderer3D;
 class Surface;
+class World;
 
 struct SDL_Rect;
 struct SDL_Renderer;
@@ -72,7 +74,7 @@ public:
 	void draw(SDL_Texture *texture, int x, int y, int w, int h);
 
 	// Renders the game world to the internal frame buffer.
-	void render(Renderer3D &renderer3D);
+	void render(const Camera &camera, const World &world, Renderer3D &renderer3D);
 
 	// Refreshes the displayed frame buffer.
 	void present();

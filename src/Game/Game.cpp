@@ -61,7 +61,7 @@ void Game::tick(double dt)
 void Game::render(double dt)
 {
 	this->renderer.clear();
-	this->renderer.render(this->renderer3D);
+	this->renderer.render(this->camera, this->world, this->renderer3D);
 	this->renderer.present();
 }
 

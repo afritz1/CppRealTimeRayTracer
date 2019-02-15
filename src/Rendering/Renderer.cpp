@@ -280,7 +280,7 @@ void Renderer::draw(SDL_Texture *texture, int x, int y, int w, int h)
 	SDL_RenderCopy(this->renderer, texture, nullptr, &rect);
 }
 
-void Renderer::render(Renderer3D &renderer3D)
+void Renderer::render(const Camera &camera, const World &world, Renderer3D &renderer3D)
 {
 	assert(renderer3D.isInited());
 
@@ -298,7 +298,7 @@ void Renderer::render(Renderer3D &renderer3D)
 	}
 
 	// Render the game world to the game world frame buffer.
-	renderer3D.render(gameWorldPixels);
+	renderer3D.render(camera, world, gameWorldPixels);
 
 	// Update the game world texture with the new ARGB8888 pixels.
 	SDL_UnlockTexture(this->gameWorldTexture);

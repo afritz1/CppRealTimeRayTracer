@@ -4,6 +4,10 @@
 #include <cstdint>
 #include <vector>
 
+class Camera;
+class IntersectionData;
+class World;
+
 class Renderer3D
 {
 private:
@@ -11,6 +15,8 @@ private:
 	int width, height;
 
 	// @todo: need to intersect four triangles/rectangles at a time.
+
+
 public:
 	Renderer3D();
 
@@ -20,7 +26,7 @@ public:
 	void resize(int width, int height);
 
 	// Destination buffer is in ARGB8888.
-	void render(uint32_t *dst);
+	void render(const Camera &camera, const World &world, uint32_t *dst);
 };
 
 #endif

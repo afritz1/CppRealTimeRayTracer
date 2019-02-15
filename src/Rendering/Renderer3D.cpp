@@ -2,6 +2,8 @@
 #include <limits>
 
 #include "Renderer3D.h"
+#include "../Cameras/Camera.h"
+#include "../World/World.h"
 
 Renderer3D::Renderer3D()
 {
@@ -33,7 +35,7 @@ void Renderer3D::resize(int width, int height)
 	this->height = height;
 }
 
-void Renderer3D::render(uint32_t *dst)
+void Renderer3D::render(const Camera &camera, const World &world, uint32_t *dst)
 {
 	for (int y = 0; y < this->height; y++)
 	{
