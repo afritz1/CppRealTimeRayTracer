@@ -12,8 +12,9 @@
 // - p3: (0, 1)
 
 class BoundingBox;
-class IntersectionData;
-class Ray;
+
+struct IntersectionData;
+struct Ray;
 
 class Triangle
 {

@@ -19,8 +19,9 @@
 // - uv2: @p2 (bottom right)
 
 class BoundingBox;
-class IntersectionData;
-class Ray;
+
+struct IntersectionData;
+struct Ray;
 
 class Rect
 {

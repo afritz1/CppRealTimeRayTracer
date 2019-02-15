@@ -3,6 +3,7 @@
 
 #include "Renderer3D.h"
 #include "../Cameras/Camera.h"
+#include "../Math/Ray.h"
 #include "../World/World.h"
 
 Renderer3D::Renderer3D()
@@ -35,6 +36,22 @@ void Renderer3D::resize(int width, int height)
 	this->height = height;
 }
 
+Ray Renderer3D::generateRay(double xPercent, double yPercent, const Camera &camera)
+{
+	const Double3 point = camera.getEye();
+	const Double3 direction = [xPercent, yPercent, &camera]()
+	{
+		const double rightComponent = -1.0 + (2.0 * xPercent);
+		const double upComponent = 1.0 - (2.0 * yPercent);
+		return (camera.getForward() + (camera.getRight() * rightComponent) +
+			(camera.getUp() * upComponent)).normalized();
+	}();
+
+	Ray ray;
+	ray.init(point, direction);
+	return ray;
+}
+
 void Renderer3D::render(const Camera &camera, const World &world, uint32_t *dst)
 {
 	for (int y = 0; y < this->height; y++)
@@ -46,9 +63,11 @@ void Renderer3D::render(const Camera &camera, const World &world, uint32_t *dst)
 			const int index = x + (y * this->width);
 			const double xPercent = (static_cast<double>(x) + 0.50) / static_cast<double>(this->width);
 
-			const double r = std::min(std::max(xPercent, 0.0), 1.0);
-			const double g = std::min(std::max(yPercent, 0.0), 1.0);
-			const double b = std::min(std::max(1.0 - (xPercent * 0.50) - (yPercent * 0.50), 0.0), 1.0);
+			Ray ray = Renderer3D::generateRay(xPercent, yPercent, camera);
+
+			const double r = std::min(std::max(ray.direction.x, 0.0), 1.0);
+			const double g = std::min(std::max(ray.direction.y, 0.0), 1.0);
+			const double b = std::min(std::max(ray.direction.z, 0.0), 1.0);
 
 			const uint32_t color =
 				(static_cast<uint8_t>(r * 255.0) << 16) |

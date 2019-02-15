@@ -5,12 +5,36 @@
 
 Game::Game()
 {
+	// Initialize camera.
+	const Double3 eye(0.0, 1.0, 0.0);
+	const Double3 direction(1.0, 0.0, 0.0);
+	this->camera = Camera(eye, direction);
+
+	// Initialize renderer.
 	const int width = 1280;
 	const int height = 720;
 	const bool fullscreen = false;
 	this->resolutionScale = 0.50;
 	this->renderer.init(width, height, fullscreen);
 	this->renderer.init3D(this->resolutionScale, this->renderer3D);
+
+	// Initialize world.
+	const Double3 fogColor(0.2, 0.5, 1.0);
+	const double fogDistance = 20.0;
+	this->world.init(fogColor, fogDistance);
+
+	Rect rect;
+	rect.init(
+		Double3(5.0, 0.0, 0.0),
+		Double3::UnitY,
+		Double3::UnitZ,
+		2.0,
+		1.0,
+		Double2::Zero,
+		Double2(1.0, 1.0),
+		0);
+
+	this->world.addRect(std::move(rect));
 }
 
 void Game::handleInput(bool &running)
@@ -55,7 +79,10 @@ void Game::saveScreenshot(const Surface &surface)
 
 void Game::tick(double dt)
 {
-
+	const double dxRadians = 0.25;
+	const double dyRadians = 0.0;
+	const double pitchLimit = 85.0;
+	this->camera.rotate(dxRadians, dyRadians, pitchLimit);
 }
 
 void Game::render(double dt)

@@ -20,6 +20,8 @@ private:
 public:
 	Material();
 
+	int getWidth() const;
+	int getHeight() const;
 	const Texel &getTexel(int x, int y) const;
 
 	void init(int width, int height, const uint32_t *argb);

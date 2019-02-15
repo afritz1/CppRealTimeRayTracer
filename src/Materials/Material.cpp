@@ -8,6 +8,16 @@ Material::Material()
 	this->height = 0;
 }
 
+int Material::getWidth() const
+{
+	return this->width;
+}
+
+int Material::getHeight() const
+{
+	return this->height;
+}
+
 int Material::getIndex(int x, int y) const
 {
 	return x + (y * this->width);

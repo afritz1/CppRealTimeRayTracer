@@ -5,8 +5,10 @@
 #include <vector>
 
 class Camera;
-class IntersectionData;
 class World;
+
+struct IntersectionData;
+struct Ray;
 
 class Renderer3D
 {
@@ -16,7 +18,8 @@ private:
 
 	// @todo: need to intersect four triangles/rectangles at a time.
 
-
+	// Generates a ray from the camera through the screen at the given XY coordinate.
+	static Ray generateRay(double xPercent, double yPercent, const Camera &camera);
 public:
 	Renderer3D();
 
